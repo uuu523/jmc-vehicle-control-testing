@@ -237,3 +237,14 @@ def test_query_vehicle_status_after_unlock_response_lost(
         "online": True,
         "door_locked": False,
     }
+
+def test_get_vehicle_status_when_vehicle_not_found(api_client):
+    response = api_client.get(
+        "/vehicles/UNKNOWN/status",
+        headers={"X-Request-ID": "status-not-found-001"},
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "vehicle not found"
+    }
