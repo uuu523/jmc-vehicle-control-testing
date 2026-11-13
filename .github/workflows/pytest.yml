@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Download source code
@@ -32,9 +32,14 @@ jobs:
       - name: Create report directory
         run: mkdir -p reports
 
-      - name: Run pytest
+      - name: Run pytest with coverage gate
         run: >
           python -m pytest -v
+          --cov=vehicle_control
+          --cov=vehicle_api
+          --cov-report=term-missing
+          --cov-report=xml:reports/coverage.xml
+          --cov-fail-under=90
           --html=reports/test-report.html
           --self-contained-html
 
