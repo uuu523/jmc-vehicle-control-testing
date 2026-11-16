@@ -37,6 +37,7 @@ jobs:
           python -m pytest -v
           --cov=vehicle_control
           --cov=vehicle_api
+          --cov=tbox_logic
           --cov-report=term-missing
           --cov-report=xml:reports/coverage.xml
           --cov-fail-under=90

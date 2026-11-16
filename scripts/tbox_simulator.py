@@ -3,6 +3,8 @@ import json
 import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
 
+from tbox_logic import TBoxController
+
 
 BROKER_HOST = "127.0.0.1"
 BROKER_PORT = 1883
@@ -12,7 +14,7 @@ VEHICLE_ID = "JMC-001"
 class TBoxSimulator:
     def __init__(self, vehicle_id):
         self.vehicle_id = vehicle_id
-        self.door_locked = True
+        self.controller = TBoxController(vehicle_id)
 
         self.command_topic = (
             f"vehicle/{vehicle_id}/command"
@@ -47,11 +49,11 @@ class TBoxSimulator:
             qos=1,
         )
 
-        print(f"Connected to MQTT broker")
+        print("Connected to MQTT broker")
         print(f"Subscribed topic: {self.command_topic}")
         print(
-            f"Initial door state: "
-            f"door_locked={self.door_locked}"
+            "Initial door state: "
+            f"door_locked={self.controller.door_locked}"
         )
 
     def on_message(
@@ -65,63 +67,13 @@ class TBoxSimulator:
         print(f"\nReceived topic: {message.topic}")
         print(f"Received payload: {raw_payload}")
 
-        try:
-            command = json.loads(raw_payload)
-        except json.JSONDecodeError:
-            self.publish_result(
-                command_id=None,
-                action=None,
-                status="failed",
-                reason="invalid_json",
-            )
-            return
-
-        command_id = command.get("command_id")
-        action = command.get("action")
-
-        if not isinstance(command_id, str) or not command_id:
-            self.publish_result(
-                command_id=command_id,
-                action=action,
-                status="failed",
-                reason="invalid_command_id",
-            )
-            return
-
-        if action == "unlock":
-            self.door_locked = False
-
-            self.publish_result(
-                command_id=command_id,
-                action=action,
-                status="success",
-                reason=None,
-            )
-            return
-
-        self.publish_result(
-            command_id=command_id,
-            action=action,
-            status="failed",
-            reason="unsupported_action",
+        result = self.controller.handle_command(
+            raw_payload
         )
 
-    def publish_result(
-        self,
-        command_id,
-        action,
-        status,
-        reason,
-    ):
-        result = {
-            "command_id": command_id,
-            "vehicle_id": self.vehicle_id,
-            "action": action,
-            "status": status,
-            "reason": reason,
-            "door_locked": self.door_locked,
-        }
+        self.publish_result(result)
 
+    def publish_result(self, result):
         payload = json.dumps(
             result,
             ensure_ascii=False,
