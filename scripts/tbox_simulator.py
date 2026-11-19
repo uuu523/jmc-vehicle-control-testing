@@ -1,4 +1,5 @@
 import json
+import os
 
 import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
@@ -6,9 +7,17 @@ from paho.mqtt.enums import CallbackAPIVersion
 from tbox_logic import TBoxController
 
 
-BROKER_HOST = "127.0.0.1"
-BROKER_PORT = 1883
-VEHICLE_ID = "JMC-001"
+BROKER_HOST = os.getenv(
+    "MQTT_BROKER_HOST",
+    "127.0.0.1",
+)
+BROKER_PORT = int(
+    os.getenv("MQTT_BROKER_PORT", "1883")
+)
+VEHICLE_ID = os.getenv(
+    "VEHICLE_ID",
+    "JMC-001",
+)
 
 
 class TBoxSimulator:

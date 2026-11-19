@@ -10,7 +10,7 @@ from command_store import CommandStore
 KNOWN_VEHICLES = {"JMC-001"}
 
 
-def create_app(publisher, store=None):
+def create_app(publisher, store=None, lifespan=None):
     command_store = (
         store
         if store is not None
@@ -20,6 +20,7 @@ def create_app(publisher, store=None):
     app = FastAPI(
         title="Connected Vehicle Cloud API",
         version="2.0.0",
+        lifespan=lifespan,
     )
     app.state.command_store = command_store
 
