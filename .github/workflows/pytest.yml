@@ -37,6 +37,12 @@ jobs:
           python -m pytest -v
           --cov=vehicle_control
           --cov=vehicle_api
+          --cov=tbox_logic
+          --cov=command_store
+          --cov=cloud_api
+          --cov=mqtt_publisher
+          --cov=mqtt_result_consumer
+          --cov=cloud_mqtt
           --cov-report=term-missing
           --cov-report=xml:reports/coverage.xml
           --cov-fail-under=90
